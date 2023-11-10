@@ -3,7 +3,7 @@ import requests
 
 app = Flask(__name__)
 
-random_microservice_url = "http://127.0.0.1:8001/generate"
+random_microservice_url = "http://random_microservice:8001/generate"
 
 # Calling the random number generator microservice
 def call_random_microservie():

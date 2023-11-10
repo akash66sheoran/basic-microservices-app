@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  random_microservice:
+    build:
+      context: ./random_microservice
+    ports:
+      - "8001:8001"
+
+  evenodd_microservice:
+    build:
+      context: ./evenodd_microservice
+    ports:
+      - "8002:8002"
+    depends_on:
+      - random_microservice
