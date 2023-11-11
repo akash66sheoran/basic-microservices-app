@@ -1,0 +1,109 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ms-app
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: random-microservice
+  namespace: ms-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: random-microservice
+  template:
+    metadata:
+      labels:
+        app: random-microservice
+    spec:
+      containers:
+      - name: random-microservice
+        image: akashsheoarn/random-microservice
+        ports:
+        - containerPort: 8001
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: random-microservice
+  namespace: ms-app
+spec:
+  selector:
+    app: random-microservice
+  ports:
+    - protocol: TCP
+      port: 8001
+      targetPort: 8001
+  type: NodePort
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: evenodd-microservice
+  namespace: ms-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: evenodd-microservice
+  template:
+    metadata:
+      labels:
+        app: evenodd-microservice
+    spec:
+      containers:
+      - name: evenodd-microservice
+        image: akashsheoarn/evenodd-microservice
+        ports:
+        - containerPort: 8002
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: evenodd-microservice
+  namespace: ms-app
+spec:
+  selector:
+    app: evenodd-microservice
+  ports:
+    - protocol: TCP
+      port: 8002
+      targetPort: 8002
+  type: NodePort
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: my-ingress
+  namespace: ms-app
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+spec:
+  ingressClassName: alb
+  rules:
+    - host:
+      http:
+        paths:
+          - path: /generate
+            pathType: Prefix
+            backend:
+              service:
+                name: random-microservice
+                port:
+                  number: 8001
+          - path: /check
+            pathType: Prefix
+            backend:
+              service:
+                name: evenodd-microservice
+                port:
+                  number: 8002
